@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import state from "./store.js"
+import { useRef , useEffect , Suspense} from 'react'
+import { Html } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import Content from './components/content'
+import './components/CustomMaterial'
 
 function App() {
+  const scrollArea = useRef()
+  const onScroll = (e) => {
+    state.top.current = e.target.scrollTop
+  }
+  useEffect(() => {
+    onScroll({ target: scrollArea.current })
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    <Canvas linear dpr={[1, 2]} orthographic camera={{ zoom: state.zoom, position: [0, 0, 500] }}>
+      <Suspense fallback={<Html center className="loading" children="Loading..." />}>
+        <Content />
+      </Suspense>
+    </Canvas>
+      <div className="scrollArea" ref={scrollArea} onScroll={onScroll}>
+      {new Array(state.sections).fill().map((_, index) => (
+          <div key={index} id={"0" + index} style={{ height: `${(state.pages / state.sections) * 100}vh` }} />
+        ))}
+      </div>
+    </>
   );
 }
 
